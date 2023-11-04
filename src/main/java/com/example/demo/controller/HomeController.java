@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HomeController {
     
-    @GetMapping("/")
+    @GetMapping("/valami")
     public String home() {
-        return "Hello from Azure App Service (in the staging slot)!";
+        return "Hello from Azure App Service from not root!";
     }
 }
