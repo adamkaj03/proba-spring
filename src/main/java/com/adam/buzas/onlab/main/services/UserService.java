@@ -35,7 +35,14 @@ public class UserService implements UserDetailsService {
         else {
             return "";
         }
+    }
 
+    public boolean isUserWithThisEmail(String email){
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    public boolean isUserWithThisUsername(String username){
+        return userRepository.findByUsername(username).isPresent();
     }
 
     public User newUser(User f){

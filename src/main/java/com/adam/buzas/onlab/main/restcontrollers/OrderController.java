@@ -41,17 +41,10 @@ public class OrderController {
 
     @PostMapping("/rendelesek")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request){
-        System.out.println(request.getShippingType().getName());
         orderService.newOrder(LocalDateTime.now(), request.getAddress(), request.getUsername(), request.getCart(), request.getShippingType());
         return ResponseEntity.ok("Siker");
     }
 
-//    @PutMapping("/rendelesek/{id}")
-//    public OrderDTO updateOrder(@PathVariable("id") int id, @RequestBody Order order) {
-//        order.setId(id);
-//        Order o = orderService.newOrder(order.getDateTime(), order.getDeliveryAddress(), order.getUser());
-//        return converter.convert(o);
-//    }
 
     @DeleteMapping("/rendelesek/{id}")
     public void deleteOrder(@PathVariable("id") int id){

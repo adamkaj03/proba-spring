@@ -46,11 +46,12 @@ public class BookController {
     public ResponseEntity<?> getBookByTitle(@PathVariable("title") String title){
         //angularban elkell kódolni a / karaktert és itt kódolom vissza
         String newTitle = title.replaceAll("--", "/");
-        if(!bookService.getBookByTitle(newTitle).isEmpty()){
-            return ResponseEntity.ok(bookService.getBookByTitle(newTitle));
+        Optional<Book> book = bookService.getBookByTitle(newTitle);
+        if(book.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseText("There aren't any books in the system with this title!"));
         }
         else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseText("There aren't any books in the system with this title!"));
+            return ResponseEntity.ok(book);
         }
     }
 
@@ -66,34 +67,25 @@ public class BookController {
     @GetMapping("/books/search/{word}")
     public ResponseEntity<?> getBookBySearchingWord(@PathVariable("word") String word){
         List<Book> list = bookService.getBooksBySearchingWord(word);
-        if(!list.isEmpty()){
-            return ResponseEntity.ok(list);
+        if(list.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseText("There aren't any result for this search!"));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseText("There aren't any result for this search!"));
+        return ResponseEntity.ok(list);
     }
 
 
 
     @PostMapping("/books")
     public ResponseEntity<?> createBook(@RequestParam("bookRequest") String bookRequest, @RequestParam("file") MultipartFile file){
-        System.out.println("belep");
         try {
-            System.out.println("1");
-            if(bookRequest.charAt(0) == '"' && bookRequest.charAt(bookRequest.length()-1) == '"'){
-                bookRequest = bookRequest.substring(1, bookRequest.length()-1);
-                bookRequest = bookRequest.replace("\\", "");
-            }
-            System.out.println(bookRequest);
-            BookRequest json = (BookRequest) converter.convertJsonStringToObject(bookRequest, BookRequest.class);
-            System.out.println("2");
+            BookRequest json = convertStringToRequest(bookRequest);
             String url = imageUploadService.uploadImage(file, file.getOriginalFilename());
-            System.out.println("3");
             Book book = new Book(json.getTitle(), json.getAuthor(), json.getPublishYear(), json.getPrice(), json.getCategory(), url, json.getDescription());
-            if(!bookService.hasBookWithTitleAndAuthor(book.getTitle(), book.getAuthor())){
-                bookService.newBook(book);
-                return ResponseEntity.ok(new ResponseText("Sikeres felvétel!"));
+            if(bookService.hasBookWithTitleAndAuthor(book.getTitle(), book.getAuthor())){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseText("Sikertelen felvétel!"));
             }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseText("Sikertelen felvétel!"));
+            bookService.newBook(book);
+            return ResponseEntity.ok(new ResponseText("Sikeres felvétel!"));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseText("Sikertelen felvétel!"));
         }
@@ -101,8 +93,7 @@ public class BookController {
     }
 
     @PutMapping("/books/{id}")
-    public Book updateBook(@PathVariable("id") int id,
-                           @RequestBody Book book) {
+    public Book updateBook(@PathVariable("id") int id, @RequestBody Book book) {
         book.setId(id);
         return bookService.newBook(book);
     }
@@ -110,6 +101,14 @@ public class BookController {
     @DeleteMapping("/books/{id}")
     public void deleteBook(@PathVariable("id") int id){
         bookService.deleteBook(id);
+    }
+
+    public BookRequest convertStringToRequest(String bookRequest) throws IOException {
+        if(bookRequest.charAt(0) == '"' && bookRequest.charAt(bookRequest.length()-1) == '"'){
+            bookRequest = bookRequest.substring(1, bookRequest.length()-1);
+            bookRequest = bookRequest.replace("\\", "");
+        }
+        return (BookRequest) converter.convertJsonStringToObject(bookRequest, BookRequest.class);
     }
 
 }

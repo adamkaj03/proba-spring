@@ -5,6 +5,7 @@ import com.adam.buzas.onlab.main.config.AuthenticationResponse;
 import com.adam.buzas.onlab.main.config.RegisterRequest;
 import com.adam.buzas.onlab.main.repository.UserRepository;
 import com.adam.buzas.onlab.main.services.AuthenticationService;
+import com.adam.buzas.onlab.main.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,31 +22,25 @@ public class AuthenticationController {
     @Autowired
     AuthenticationService authenticationService;
     @Autowired
-    UserRepository userRepository;
+    UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register (@RequestBody RegisterRequest request){
-        if(userRepository.findByEmail(request.getEmail()).isEmpty()){
-            if(userRepository.findByUsername(request.getUsername()).isEmpty()){
-                return ResponseEntity.ok(authenticationService.register(request));
-            }
-            else{
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This username is already exist!");
-            }
-        }
-        else{
+        if(userService.isUserWithThisEmail(request.getEmail())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This email is already exist!");
         }
+        if(userService.isUserWithThisUsername(request.getUsername())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This username is already exist!");
+        }
+        return ResponseEntity.ok(authenticationService.register(request));
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate (@RequestBody AuthenticationRequest request){
-        if(!userRepository.findByUsername(request.getUsername()).isEmpty()){
-            return ResponseEntity.ok(authenticationService.authenticate(request));
+        if(!userService.isUserWithThisUsername(request.getUsername())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There is no user with this username!");
         }
-        else{
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There is no user with this username!");
-        }
+        return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
     @PostMapping("/logout")

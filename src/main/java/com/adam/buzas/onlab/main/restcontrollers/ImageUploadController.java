@@ -25,15 +25,7 @@ public class ImageUploadController {
     private JsonStringToObjectConverter converter;
 
     @PostMapping("/uploadImage")
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("valami") String bookRequest) {
-        BookRequest json = null;
-        System.out.println(bookRequest);
-        try {
-            json = (BookRequest) converter.convertJsonStringToObject(bookRequest, BookRequest.class);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Konvertálási hiba");
-        }
-        System.out.println(json.getTitle());
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
         try {
             String response = imageUploadService.uploadImage(file, file.getOriginalFilename());
             return ResponseEntity.ok(response);

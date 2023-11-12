@@ -1,9 +1,6 @@
 package com.adam.buzas.onlab.main.services;
 
-import com.adam.buzas.onlab.main.model.Cart;
-import com.adam.buzas.onlab.main.model.ShippingType;
-import com.adam.buzas.onlab.main.model.User;
-import com.adam.buzas.onlab.main.model.Order;
+import com.adam.buzas.onlab.main.model.*;
 import com.adam.buzas.onlab.main.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,31 +29,21 @@ public class OrderService {
         return orderRepository.findById(id);
     }
 
-//    public Order newOrder(LocalDateTime date, String deliveryAddress, User user){
-//        Order r = new Order(date, deliveryAddress, user);
-//        return orderRepository.save(r);
-//    }
 
     public Order newOrder(LocalDateTime date, String deliveryAddress, String username, Cart cart, ShippingType shippingType){
         int fullPrice = cart.getAmount() + shippingType.getPrice();
 
         Order order = new Order(date, deliveryAddress, userService.getUserByUsername(username), shippingType, fullPrice);
         orderRepository.save(order);
-        Map<Integer, Integer> konvyIdDb = new HashMap<>();
-        for(int i = 0; i<cart.getCartContent().size(); i++){
-            int db = 1;
-            for(int j = 0; j<cart.getCartContent().size(); j++){
-                if(cart.getCartContent().get(i).getId() == cart.getCartContent().get(j).getId() && i != j){
-                    db++;
-                }
-            }
-            if(!konvyIdDb.containsKey(cart.getCartContent().get(i).getId())){
-                konvyIdDb.put(cart.getCartContent().get(i).getId(), db);
-            }
+        Map<Integer, Integer> bookIdCount = new HashMap<>();
+        for(Book book : cart.getCartContent()){
+            int count = bookIdCount.getOrDefault(book.getId(), 0);
+            bookIdCount.put(book.getId(), count+1);
         }
 
-        for (Map.Entry<Integer, Integer> entry : konvyIdDb.entrySet()) {
-            orderedBookService.newOrderedBook(getOrder(order).get(),
+        order = getOrder(order).get();
+        for (Map.Entry<Integer, Integer> entry : bookIdCount.entrySet()) {
+            orderedBookService.newOrderedBook(order,
                     bookService.getBookById(entry.getKey()).get(),
                     entry.getValue());
         }
@@ -74,5 +61,7 @@ public class OrderService {
     public void deleteOrder(int id) {
         orderRepository.deleteById(id);
     }
+
+
 
 }

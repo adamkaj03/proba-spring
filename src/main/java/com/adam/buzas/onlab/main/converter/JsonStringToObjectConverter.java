@@ -7,7 +7,6 @@ import java.io.IOException;
 
 @Component
 public class JsonStringToObjectConverter {
-
     public Object convertJsonStringToObject(String jsonString, Class<?> targetClass) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(jsonString, targetClass);

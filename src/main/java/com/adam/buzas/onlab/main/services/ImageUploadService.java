@@ -15,13 +15,15 @@ public class ImageUploadService {
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-            CloudBlobContainer container = blobClient.getContainerReference("kepek"); // Az Azure Blob Storage tároló neve
+            // Azure Blob Storage tároló nevének megadása
+            CloudBlobContainer container = blobClient.getContainerReference("kepek");
 
-            CloudBlockBlob blob = container.getBlockBlobReference(blobName); // Blob azonosítója
+            //kép neve lesz a blob azonosító
+            CloudBlockBlob blob = container.getBlockBlobReference(blobName);
             blob.upload(file.getInputStream(), file.getSize());
             return blob.getUri().toString();
         } catch (Exception e) {
-            // Kezeld az exception-t
+
         }
         return "";
     }

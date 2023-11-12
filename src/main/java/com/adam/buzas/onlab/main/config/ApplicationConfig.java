@@ -30,6 +30,7 @@ public class ApplicationConfig {
         return  authenticationProvider;
     }
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();

@@ -32,12 +32,10 @@ public class CategoryController {
     @GetMapping("/kategoriak/name")
     public ResponseEntity<?> getBookByTitle(@RequestBody String name){
         Optional<Category> categoryOpt = categoryService.getcategoryByName(name);
-        if(!categoryOpt.isEmpty()){
-            return ResponseEntity.ok(categoryOpt.get());
-        }
-        else {
+        if(categoryOpt.isEmpty()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There aren't any category in the system with this name!");
         }
+        return ResponseEntity.ok(categoryOpt.get());
     }
 
     @GetMapping("/kategoriak/{id}")
