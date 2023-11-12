@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .permitAll()
                 .requestMatchers(HttpMethod.POST,
                         "/api/auth/**",
+                        "/api/uploadImage",
                         "/api/kosar/**")
                 .permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/kosar/**")
@@ -44,7 +45,6 @@ public class SecurityConfig {
                 .hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,
                         "/api/kategoriak/**",
-                        "/api/uploadImage",
                         "api/books")
                 .hasRole("ADMIN")
                 .anyRequest()
