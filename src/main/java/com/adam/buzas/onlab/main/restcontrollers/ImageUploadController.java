@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequestMapping("/api")
 @RestController
@@ -25,12 +28,15 @@ public class ImageUploadController {
     private JsonStringToObjectConverter converter;
 
     @PostMapping("/uploadImage")
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        System.out.println("controller");
         try {
             String response = imageUploadService.uploadImage(file, file.getOriginalFilename());
-            return ResponseEntity.ok(response);
+            Map<String, String> jsonResponse = new HashMap<>();
+            jsonResponse.put("url", response); // response helyett a kép URL-jét kell beállítani
+            return ResponseEntity.ok(jsonResponse);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Failed to upload image."));
         }
     }
 
