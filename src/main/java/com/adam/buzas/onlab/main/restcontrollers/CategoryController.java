@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @RequestMapping("/api")
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "https://purple-river-0f0577f03.4.azurestaticapps.net"})
 public class CategoryController {
 
     @Autowired
